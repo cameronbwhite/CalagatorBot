@@ -25,6 +25,7 @@ if __name__ == "__main__":
         install_requires = [
             'kitnirc',
             'BotParse',
+            'feedparser',
         ],
         include_package_data=True,
     )
