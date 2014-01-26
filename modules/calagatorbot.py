@@ -15,6 +15,8 @@ _log = logging.getLogger(__name__)
 parser = BotParse()
 command_today = parser.add_command('!today')
 command_today.add_argument('--limit', type=int)
+command_tomorrow = parser.add_command('!tomorrow')
+command_tomorrow.add_argument('--limit', type=int)
 
 class CalagatorBot(Module):
     
@@ -57,6 +59,26 @@ class CalagatorBot(Module):
                     )
                     return entries
                 messages = self.get_event_messages(today_sort)
+        elif self.args.command == "!tomorrow":
+
+            if self.args.help:
+                messages = command_today.format_help().split('\n')
+            else:
+                def tomorrow_sort(entries):
+                    today = datetime.datetime.today().date()
+                    tomorrow = today + datetime.timedelta(days=1)
+                    entries = list(takewhile(
+                        lambda x: 
+                            get_start_time(x).date() <= tomorrow,
+                        entries,
+                    ))
+                    entries = filter(
+                        lambda x:
+                            get_start_time(x).date() == tomorrow,
+                        entries,
+                    )
+                    return entries
+                messages = self.get_event_messages(tomorrow_sort)
 
         elif self.args.command == "!help":
             messages = parser.format_help().split('\n')
