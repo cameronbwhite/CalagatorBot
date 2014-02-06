@@ -117,19 +117,25 @@ class CalagatorBot(Module):
 
         messages = []
         for entry in entries:
-            
-            start_time = get_start_time(entry)
-            end_time = get_end_time(entry)
+            try: 
+                start_time = get_start_time(entry)
+                end_time = get_end_time(entry)
+                link = getattr(entry, 'link', None)
 
-            message = '{} - {:%a, %b %d} from {:%H:%M} to {:%H:%M} - {}'.format(
-                entry.title,
-                get_start_time(entry),
-                get_start_time(entry),
-                get_end_time(entry),
-                entry.link,
-            )
+                message = '{} - {:%a, %b %d} from {:%H:%M}'.format(
+                    entry.title,
+                    start_time,
+                    start_time,
+                )
+                if end_time:
+                    message += ' to {:%H:%M} '.format(end_time)
+                if link:
+                    message += ' - {}'.format(link)
 
-            messages.append(message)
+                messages.append(message)
+            except Exception:
+                pass
+                
         return messages
 
 def get_start_time(entry):
@@ -140,10 +146,15 @@ def get_start_time(entry):
     )
 
 def get_end_time(entry):
-    end_time = re.sub(r':[0-9][0-9]-[0-9][0-9]:[0-9][0-9]', '', entry.end_time)
-    return datetime.datetime.strptime(
-        end_time,
-        r'%Y-%m-%dT%H:%M',
-    )
+    try:
+        end_time = re.sub(
+            r':[0-9][0-9]-[0-9][0-9]:[0-9][0-9]', 
+            '', entry.end_time)
+        return datetime.datetime.strptime(
+            end_time,
+            r'%Y-%m-%dT%H:%M',
+        )
+    except AttributeError:
+        return None
     
 module = CalagatorBot
